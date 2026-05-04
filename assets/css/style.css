@@ -2487,30 +2487,6 @@ main picture img {
   }
 }
 
-.timeline-img {
-  width: 120px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 0.5rem;
-  flex-shrink: 0;
-  opacity: 0.85;
-}
-@media (max-width: 576px) {
-  .timeline-img {
-    width: 120px;
-    height: 80px;
-  }
-}
-
-.timeline-img-placeholder {
-  width: 120px;
-  height: 80px;
-  border-radius: 0.5rem;
-  flex-shrink: 0;
-  border: 1px dashed var(--primary-color);
-  opacity: 0.2;
-}
-
 .timeline-content {
   flex: 1;
   text-align: left;
