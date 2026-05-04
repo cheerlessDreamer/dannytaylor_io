@@ -31,6 +31,20 @@ http.createServer(function (req, res) {
             var ext = path.extname(filePath);
             res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
             fs.createReadStream(filePath).pipe(res);
+        } else if (!err && stats.isDirectory()) {
+            // Directory request — serve <dir>/index.html if it exists (matches GitHub Pages behaviour)
+            var dirIndex = path.join(filePath, 'index.html');
+            fs.stat(dirIndex, function (idxErr, idxStats) {
+                if (!idxErr && idxStats.isFile()) {
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    fs.createReadStream(dirIndex).pipe(res);
+                } else {
+                    // No index.html in dir — fall through to SPA fallback
+                    var indexPath = path.join(ROOT, 'index.html');
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    fs.createReadStream(indexPath).pipe(res);
+                }
+            });
         } else {
             // SPA fallback — serve index.html for unknown routes
             var indexPath = path.join(ROOT, 'index.html');
