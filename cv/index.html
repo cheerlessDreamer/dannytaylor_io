@@ -8,6 +8,8 @@
     <meta name="robots" content="noindex">
     <link rel="canonical" href="https://dannytaylor.io/cv">
     <link rel="icon" href="/favicon.ico">
+    <!-- SimpleAnalytics event-queue stub (must come before any sa_event calls) -->
+    <script>window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};</script>
     <style>
         html, body {
             height: 100%;
@@ -53,16 +55,6 @@
         <p>If your browser doesn't redirect automatically, <a href="/assets/other/DannyTaylorWebCV.pdf">download the CV here</a>.</p>
     </div>
     <script>
-        // SimpleAnalytics event-queue stub — calls before the SA script loads
-        // are queued, then flushed once it loads.
-        window.sa_event = window.sa_event || function () {
-            var a = [].slice.call(arguments);
-            a.unshift('event');
-            (sa_event.q = sa_event.q || []).push(a);
-        };
-        // Queue the CV download event immediately.
-        sa_event('cv_download');
-
         var pdfUrl = '/assets/other/DannyTaylorWebCV.pdf';
         var redirected = false;
         function redirect() {
@@ -70,15 +62,27 @@
             redirected = true;
             window.location.replace(pdfUrl);
         }
-        // Hard cap — if SA never loads (offline, blocker, etc.), bounce anyway after 3s.
+        // Hard cap — if SA never loads (blocker, offline, etc.), bounce anyway.
         setTimeout(redirect, 3000);
+
+        // Fire the event once SA has loaded, then redirect from inside its callback
+        // (per the SA docs' recommended pattern for navigation events).
+        // DNT doesn't play nicely with callbacks — fall back to plain redirect.
+        function trackAndRedirect() {
+            var dntActive = parseInt(navigator.msDoNotTrack || window.doNotTrack || navigator.doNotTrack, 10) === 1;
+            if (window.sa_loaded && !dntActive) {
+                sa_event('cv_download', redirect);
+            } else {
+                redirect();
+            }
+        }
     </script>
     <!-- 100% privacy-first analytics -->
     <script
         async
         src="https://scripts.simpleanalyticscdn.com/latest.js"
-        onload="setTimeout(redirect, 200);"
-        onerror="redirect();"></script>
+        onload="trackAndRedirect()"
+        onerror="redirect()"></script>
 </body>
 
 </html>
