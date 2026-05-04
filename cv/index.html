@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV — Danny Taylor</title>
     <meta name="robots" content="noindex">
-    <meta http-equiv="refresh" content="1; url=/assets/other/DannyTaylorWebCV.pdf">
     <link rel="canonical" href="https://dannytaylor.io/cv">
     <link rel="icon" href="/favicon.ico">
     <style>
@@ -54,14 +53,32 @@
         <p>If your browser doesn't redirect automatically, <a href="/assets/other/DannyTaylorWebCV.pdf">download the CV here</a>.</p>
     </div>
     <script>
-        // Belt and braces: trigger the redirect after a beat, in case
-        // meta refresh is suppressed (some browsers block it on user-script pages).
-        setTimeout(function () {
-            window.location.replace('/assets/other/DannyTaylorWebCV.pdf');
-        }, 1100);
+        // SimpleAnalytics event-queue stub — calls before the SA script loads
+        // are queued, then flushed once it loads.
+        window.sa_event = window.sa_event || function () {
+            var a = [].slice.call(arguments);
+            a.unshift('event');
+            (sa_event.q = sa_event.q || []).push(a);
+        };
+        // Queue the CV download event immediately.
+        sa_event('cv_download');
+
+        var pdfUrl = '/assets/other/DannyTaylorWebCV.pdf';
+        var redirected = false;
+        function redirect() {
+            if (redirected) return;
+            redirected = true;
+            window.location.replace(pdfUrl);
+        }
+        // Hard cap — if SA never loads (offline, blocker, etc.), bounce anyway after 3s.
+        setTimeout(redirect, 3000);
     </script>
     <!-- 100% privacy-first analytics -->
-    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+    <script
+        async
+        src="https://scripts.simpleanalyticscdn.com/latest.js"
+        onload="setTimeout(redirect, 200);"
+        onerror="redirect();"></script>
 </body>
 
 </html>
